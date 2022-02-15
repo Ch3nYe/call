@@ -19,19 +19,18 @@ path = "src/main.rs"
 name = "call"
 
 [dependencies]
-config = "0.11"
-clap = "2.33.3"
-anyhow = "1.0.36"
-log = "0.4.11"
-yaml-rust = "0.4"
-dirs = "2.0"
-ignore = "0.4.17"
-cmd_lib = "1.0.10"
+config = "0.11" # read config
+clap = "2.33.3" # parse command
+anyhow = "1.0.36" # capture Errors
+log = "0.4.11" # logging
+yaml-rust = "0.4" # parse yaml string or serialize it to yaml string
+dirs = "2.0" # get full path depends on system eg:$HOME == "/home/username/"
+ignore = "0.4.17" # recursive directory iterator with some file filters
+cmd_lib = "1.0.10" # 启动子进程运行命令
 # console process
-console = "0.14.0"
-indicatif = "0.15.0"
+console = "0.14.0" # 提供友好的terminal控制
+indicatif = "0.15.0" # 提供可以报告进度的命令行接口
 
 # Serialize, Deserialize
 serde = "1.0.128"
 serde_derive = "1.0.128"
-
