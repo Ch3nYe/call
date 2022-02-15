@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-#[macro_use]
+#[macro_use] // allow use macros in crate serde_derive
 extern crate serde_derive;
 
 use anyhow::Result;
@@ -11,6 +11,7 @@ use crate::config::{CallConfig, CallSystemConfig};
 use std::fs::{create_dir_all, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use log::log;
 
 #[macro_use]
 mod call_macro;
@@ -50,7 +51,7 @@ pub fn config_file(call_config_root: &PathBuf) -> Result<(PathBuf, PathBuf)> {
 }
 
 fn run() -> Result<bool> {
-	let matches = App::new("call")
+	let matches = App::new("call") // help message from Cargo.toml:[package]
 		.version(crate_version!())
 		.author(crate_authors!())
 		.about(crate_description!())
@@ -59,7 +60,7 @@ fn run() -> Result<bool> {
 
 	if let Some(command) = matches.value_of("command") {
 		match command {
-			_ if command == "i" => cmd::init()?,
+			_ if command == "i" => cmd::init()?, // ? is for anyhow to handle exceptions,
 			_ => {
 				let call_config_root = root_path()?.join("config.toml");
 				let (_template_file, call_file) = config_file(&call_config_root)?;
@@ -88,3 +89,16 @@ fn main() {
 		}
 	}
 }
+
+
+// #[cfg(test)]
+// mod tests {
+// 	use super::*;
+//
+// 	#[test]
+// 	fn internal()->Result<bool> {
+// 		let call_config_root = root_path()?;
+// 		println!("[-]call_config_root: {}",call_config_root.to_str().unwrap());
+// 		Ok(true)
+// 	}
+// }

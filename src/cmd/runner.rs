@@ -9,7 +9,7 @@ use console::style;
 
 pub fn runner(command: &str, config: &CallConfig) -> Result<()> {
 	let mut include_list: Vec<String> = Vec::new();
-
+	// get all path and file in current path "." , depth=1
 	for result in WalkBuilder::new(".").max_depth(Some(1)).build() {
 		match result {
 			Ok(entry) => {
@@ -21,13 +21,13 @@ pub fn runner(command: &str, config: &CallConfig) -> Result<()> {
 			Err(err) => println!("Call ERROR: {}", err),
 		}
 	}
-
+	// get active ways in Call.yml,
 	for (_key, server_list) in config.active.iter() {
 		let dest = config.mapping.dest.as_str();
 		let src = config.mapping.src.as_str();
 
 		for server in server_list {
-			if let ServerValue::Openssh {
+			if let ServerValue::Openssh { // ssh connect with
 				host,
 				port,
 				authentication_type: _,
@@ -42,17 +42,17 @@ pub fn runner(command: &str, config: &CallConfig) -> Result<()> {
 						host_ip,
 					);
 					let mut rsync = Command::new("rsync");
-					let mut rsync_params = vec!["-aq", "-zz", "--delete", "--chmod=755", "--exclude-from=.gitignore"];
-					for i in include_list.iter() {
-						rsync_params.push(i.trim());
-					}
+					let mut rsync_params = vec!["-aq", "-zz", "--delete", "--chmod=755"];
+					// for i in include_list.iter() {
+					// 	rsync_params.push(i.trim());
+					// }
 
 					rsync.args(rsync_params);
 
-					rsync
-						.arg(format!("ssh -p{}", port))
+					rsync.arg("-e")
+						.arg(format!("\"ssh -p{}\"", port))
 						.arg("--rsync-path")
-						.arg(format!("mkdir -p {} && rsync", dest))
+						.arg(format!("\"mkdir -p {} && rsync\"", dest))
 						.arg(format!("{}", src))
 						.arg(format!("{}@{}:{}", username, host_ip, dest))
 						.stdout(Stdio::inherit())
@@ -76,7 +76,7 @@ pub fn runner(command: &str, config: &CallConfig) -> Result<()> {
 					openssh_run(host_ip, port, username, dest, config.runner.as_str(), command);
 				}
 			};
-			if let ServerValue::Password {
+			if let ServerValue::Password { // sshpass connect
 				host,
 				port,
 				authentication_type: _,
@@ -91,7 +91,7 @@ pub fn runner(command: &str, config: &CallConfig) -> Result<()> {
 						TRUCK,
 						host_ip,
 					);
-					run_cmd!(sshpass -p $password rsync -aq -zz  -e "ssh -p $port" --delete --chmod=755 --exclude-from=".gitignore" --info=progress2 --rsync-path="mkdir -p $dest && rsync" . $username@$host_ip:$dest)?;
+					run_cmd!(sshpass -p $password rsync -aq -zz  -e "ssh -p $port" --delete --chmod=755 --info=progress2 --rsync-path="mkdir -p $dest && rsync" . $username@$host_ip:$dest)?;
 					println!(
 						"{} {} server({}) run: {} {}",
 						style(format!("[{}]", "running...")).bold().dim(),
