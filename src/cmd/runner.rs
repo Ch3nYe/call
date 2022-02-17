@@ -43,8 +43,9 @@ pub fn runner(command: &str, config: &CallConfig) -> Result<()> {
 					);
 					let mut rsync = Command::new(format!("rsync -aq -zz --delete --chmod=755 ssh -p{} --rsync-path=\"mkdir -p {} && rsync\" {} {}@{}:{}"
 														 ,port,dest,src,username,host_ip,dest));
-					// println!("[-]cmd: {}",rsync.get_program().to_str().unwrap());
-					rsync.spawn().expect("[!]rsync execute error");
+					// println!("[-]cmd: {}",rsync.get_program().to_str().unwrap()); // get_program will return command which will be executed
+					rsync.spawn().expect("[!]rsync execute error"); // spawn function 作为子进程执行命令,返回一个句柄。
+					// rsync.output().expect("[!]rsync execute error"); // output function 作为子进程执行命令,等待它完成并收集所有的输出。
 
 					println!(
 						"{} {} server({}) run: {} {}",
@@ -174,8 +175,8 @@ fn password_run(host: &str, port: &i64, username: &str, password: &str, dest_pat
 			error!("[!]Call ERROR: {}", e);
 			exit(-5);
 		});
-	let output = output.wait_with_output().unwrap();
-	if !output.status.success() {
+	let output = output.wait_with_output().unwrap(); // right output is Child type
+	if !output.status.success() { // std::process::Output have 3 field: status stdout stderr
 		eprintln!("Call Error: {:?}", output.stderr);
 		exit(output.status.code().unwrap_or(1))
 	}
