@@ -169,14 +169,12 @@ fn password_run(host: &str, port: &i64, username: &str, password: &str, dest_pat
 			run_server.as_str(),
 			run_command.as_str(),
 		])
-		.stdout(Stdio::inherit())
-		.stderr(Stdio::inherit())
-		.stdin(Stdio::inherit())
-		.output()
+		.spawn()
 		.unwrap_or_else(|e| {
-			error!("Call ERROR: {}", e);
+			error!("[!]Call ERROR: {}", e);
 			exit(-5);
 		});
+	let output = output.wait_with_output().unwrap();
 	if !output.status.success() {
 		eprintln!("Call Error: {:?}", output.stderr);
 		exit(output.status.code().unwrap_or(1))
