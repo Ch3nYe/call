@@ -41,11 +41,30 @@ pub fn runner(command: &str, config: &CallConfig) -> Result<()> {
 						TRUCK,
 						host_ip,
 					);
-					let mut rsync = Command::new(format!("rsync -aq -zz --delete --chmod=755 ssh -p{} --rsync-path=\"mkdir -p {} && rsync\" {} {}@{}:{}"
-														 ,port,dest,src,username,host_ip,dest));
-					// println!("[-]cmd: {}",rsync.get_program().to_str().unwrap()); // get_program will return command which will be executed
-					rsync.spawn().expect("[!]rsync execute error"); // spawn function 作为子进程执行命令,返回一个句柄。
-					// rsync.output().expect("[!]rsync execute error"); // output function 作为子进程执行命令,等待它完成并收集所有的输出。
+					// this func use std::process::Command is ok
+					// password_rsync(host_ip,port,username,"kali",src,dest);
+					// or you can use this code block replace password_rsync()
+					let mut rsync = Command::new("sshpass"); // !!! Attention, you must split each option in a arg() alternatively use args(vec![]) !!!
+					let output = rsync
+						.arg("-p")
+						.arg("kali")
+						.arg("rsync")
+						.arg("-aq")
+						.arg("-zz")
+						.arg("-e")
+						.arg("ssh -p 22")
+					 	.arg("--delete")
+					 	.arg("--chmod=755")
+					 	.arg("--info=progress2")
+					 	.arg("--rsync-path")
+						.arg("mkdir -p /home/kali/workspace/call/ && rsync")
+						.arg(src)
+					 	.arg("kali@127.0.0.1:/home/kali/workspace/call/")
+						.stdout(Stdio::inherit())
+						.stderr(Stdio::inherit())
+						.stdin(Stdio::inherit())
+						.output()
+						.expect("[!]rsync execute error");
 
 					println!(
 						"{} {} server({}) run: {} {}",
@@ -55,6 +74,7 @@ pub fn runner(command: &str, config: &CallConfig) -> Result<()> {
 						config.runner.as_str(),
 						command
 					);
+
 
 					openssh_run(host_ip, port, username, dest, config.runner.as_str(), command);
 				}
@@ -182,7 +202,7 @@ fn password_run(host: &str, port: &i64, username: &str, password: &str, dest_pat
 	}
 }
 
-fn password_rsync(host: &str, port: &i64, username: &str, password: &str, dest_path: &str) {
+fn password_rsync(host: &str, port: &i64, username: &str, password: &str, src_path: &str, dest_path: &str) {
 	let mut sshpass = Command::new("sshpass");
 	let ssh_command = format!("ssh -p {}", port);
 
@@ -199,15 +219,17 @@ fn password_rsync(host: &str, port: &i64, username: &str, password: &str, dest_p
 			ssh_command.as_str(),
 			"--delete",
 			"--chmod=755",
-			"--exclude-from=.gitignore",
 			"--info=progress2",
 			"--rsync-path",
 			format!("mkdir -p {} && rsync", dest_path).as_str(),
+			src_path,
 			run_server.as_str(),
 		])
 		.stdout(Stdio::inherit())
 		.stderr(Stdio::inherit())
-		.stdin(Stdio::inherit())
+		.stdin(Stdio::inherit());
+	// println!("[-]cmd: {}",output.get_program().to_str().unwrap());
+	let output = output
 		.output()
 		.unwrap_or_else(|e| {
 			error!("Call ERROR: {}", e);
