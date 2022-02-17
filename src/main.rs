@@ -1,3 +1,4 @@
+#![feature(command_access)]
 #![allow(dead_code)]
 #[macro_use] // allow use macros in crate serde_derive
 extern crate serde_derive;

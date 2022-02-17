@@ -41,28 +41,10 @@ pub fn runner(command: &str, config: &CallConfig) -> Result<()> {
 						TRUCK,
 						host_ip,
 					);
-					let mut rsync = Command::new("rsync");
-					let mut rsync_params = vec!["-aq", "-zz", "--delete", "--chmod=755"];
-					// for i in include_list.iter() {
-					// 	rsync_params.push(i.trim());
-					// }
-
-					rsync.args(rsync_params);
-
-					rsync.arg("-e")
-						.arg(format!("\"ssh -p{}\"", port))
-						.arg("--rsync-path")
-						.arg(format!("\"mkdir -p {} && rsync\"", dest))
-						.arg(format!("{}", src))
-						.arg(format!("{}@{}:{}", username, host_ip, dest))
-						.stdout(Stdio::inherit())
-						.stderr(Stdio::null())
-						.stdin(Stdio::inherit())
-						.output()
-						.unwrap_or_else(|e| {
-							error!("Failed to transfer project to build server (error: {})", e);
-							exit(111);
-						});
+					let mut rsync = Command::new(format!("rsync -aq -zz --delete --chmod=755 ssh -p{} --rsync-path=\"mkdir -p {} && rsync\" {} {}@{}:{}"
+														 ,port,dest,src,username,host_ip,dest));
+					// println!("[-]cmd: {}",rsync.get_program().to_str().unwrap());
+					rsync.spawn().expect("[!]rsync execute error");
 
 					println!(
 						"{} {} server({}) run: {} {}",
@@ -91,7 +73,7 @@ pub fn runner(command: &str, config: &CallConfig) -> Result<()> {
 						TRUCK,
 						host_ip,
 					);
-					run_cmd!(sshpass -p $password rsync -aq -zz  -e "ssh -p $port" --delete --chmod=755 --info=progress2 --rsync-path="mkdir -p $dest && rsync" . $username@$host_ip:$dest)?;
+					run_cmd!(sshpass -p $password rsync -aq -zz  -e "ssh -p $port" --delete --chmod=755 --info=progress2 --rsync-path="mkdir -p $dest && rsync" $src $username@$host_ip:$dest)?;
 					println!(
 						"{} {} server({}) run: {} {}",
 						style(format!("[{}]", "running...")).bold().dim(),
