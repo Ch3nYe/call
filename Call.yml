@@ -10,12 +10,12 @@ call:
     runner: make
   mapping:
       src: .
-      dest: ~/workspace/call
+      dest: /home/kali/workspace/call
       exclude:
           - ./target
           - ./README.md
   server:
-        openssh:
+        openssh: # good
           dev:
               host:
                 - 127.0.0.1
@@ -30,7 +30,7 @@ call:
 #              authentication_type: password
 #              username: rust
 #              password: "123456"
-#        keypair:
+#        keypair: # untest
 #          prod:
 #              host:
 #                - 127.0.0.1
