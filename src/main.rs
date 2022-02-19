@@ -6,6 +6,7 @@ extern crate serde_derive;
 use anyhow::Result;
 use clap::{crate_authors, crate_description, crate_version, App, Arg};
 use std::{env, fs, process};
+use std::borrow::{Borrow, BorrowMut};
 use yaml_rust::YamlLoader;
 
 use crate::config::{CallConfig, CallSystemConfig};
@@ -68,10 +69,10 @@ fn run() -> Result<bool> {
 		.version(crate_version!())
 		.author(crate_authors!())
 		.about(crate_description!())
-		.arg(Arg::with_name("args").required(false).help("command's args, multipule arg should in \"\"").empty_values(false)) // when you use short() long() ,this argument must use -- or - explictly specify, alternatively specify without - or --
 		// 是否允许显式指定空值
 		// empty_values true[default]: must specify "" or '', command otherwise won't execute.
 		.arg(Arg::from_usage("-c --command [command] 'use this command, default use the command in Call.yml'"))// [explicit name] [short] [long] [value names] [help string] name use <>:required or []:optional
+		.arg(Arg::with_name("args").allow_hyphen_values(true).required(false).help("command's args, multipule arg should in \"\", the first - replace by \\-").empty_values(false)) // when you use short() long() ,this argument must use -- or - explictly specify, alternatively specify without - or --
 		.get_matches();
 	// whether or not explicitly specify command:
 	let mut runner:String = "".to_string();
@@ -80,7 +81,9 @@ fn run() -> Result<bool> {
 		runner = cmd.parse()?;
 	}
 	// parse config and run
-	let command = matches.value_of("args").unwrap_or("");
+	let command = matches.value_of("args").unwrap_or("").replace("\\","");
+	let command = command.as_str();
+	println!("[+]parse args=\"{}\"",command);
 	match command {
 		_ if command == "i" => cmd::init()?, // ? is for anyhow to handle exceptions,
 		_ => {
