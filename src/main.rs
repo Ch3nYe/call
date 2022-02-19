@@ -9,9 +9,10 @@ use std::{env, fs, process};
 use yaml_rust::YamlLoader;
 
 use crate::config::{CallConfig, CallSystemConfig};
-use std::fs::{create_dir_all, File};
+use std::fs::{create_dir_all, File, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::process::exit;
 use log::log;
 
 #[macro_use]
@@ -26,10 +27,21 @@ fn root_path() -> Result<PathBuf> {
 }
 
 pub fn create_file(path: &Path, content: &str) -> Result<()> {
+	// mkdir
 	if let Some(p) = path.parent() {
 		create_dir_all(p)?;
 	}
-	let mut file = File::create(&path)?;
+	// File Operation
+	// let mut file = File::create(&path)?;
+	// File::{open,create} only read and only write, if you want more options:
+	// use std:fs::OpenOptions
+	let mut file = OpenOptions::new()
+		.read(true)
+		.write(true)
+		.create(true)// create file if not exist, either open it
+		.truncate(true) // clear it
+		// .append(true) // add mode
+		.open(&path)?;
 	file.write_all(content.as_bytes())?;
 	Ok(())
 }

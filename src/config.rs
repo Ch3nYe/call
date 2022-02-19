@@ -46,7 +46,7 @@ call:
         - stage
       keypair:
         - prod
-    runner: make
+    runner: ls
   mapping:
       src: .
       dest: ~/workspace/call
@@ -60,24 +60,24 @@ call:
                 - 127.0.0.1
               port: 22
               authentication_type: openssh
-              username: rust
+              username: kali
         password:
           stage:
               host:
                 - 127.0.0.1
               port: 22
               authentication_type: password
-              username: rust
-              password: "123456"
+              username: kali
+              password: "kali"
         keypair:
           prod:
               host:
                 - 127.0.0.1
               port: 22
               authentication_type: keypair
-              username: rust
-              private_key_file: rust
-              pass_phrase: rust
+              username: kali
+              private_key_file: kali
+              pass_phrase: kali
 "#;
 
 #[derive(Clone)]

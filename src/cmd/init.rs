@@ -28,6 +28,7 @@ pub fn init() -> Result<()> {
 			style(format!("[1/{}]", 1)).bold().dim(),
 			LOOKING_GLASS
 		);
+		// File Copy Operation
 		fs::copy(&template_file, &call_file)?;
 	} else {
 		println!(
