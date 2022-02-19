@@ -34,3 +34,23 @@ let mut file = OpenOptions::new()
 file.write_all(content.as_bytes())?;
 
 ```    
+
+
+commands you can use:
+```shell
+./call -h
+./call i
+./call 
+./call .
+./call "."
+./call '\-l'
+./call '\-la'
+./call '\-l -a'
+./call '\-l'
+./call '\-l' -c ls
+./call '\-l \-a' -c ls
+./call '\-a' -c ifconfig
+./call "\-l"
+./call "\-la"
+./call "." --command ls
+```
