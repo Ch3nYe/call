@@ -19,7 +19,7 @@ pub fn init() -> Result<()> {
 	if !call_file_parent.exists() {
 		create_dir_all(call_file_parent)?;
 	}
-
+	// Time count that is nice to use.
 	let started = Instant::now();
 
 	if template_file.exists() {

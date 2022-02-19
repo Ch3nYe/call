@@ -35,7 +35,7 @@ pub static TRUCK: Emoji<'_, '_> = Emoji("🚚  ", "");
 pub static CLIP: Emoji<'_, '_> = Emoji("🔗  ", "");
 pub static PAPER: Emoji<'_, '_> = Emoji("📃  ", "");
 pub static SPARKLE: Emoji<'_, '_> = Emoji("✨ ", ":-)");
-
+// console::Emoji only print in std::env::var("LANG").to_uppercase().ends_with("UTF-8")
 pub static INIT_CONFIG: &str = r#"
 call:
   config:
