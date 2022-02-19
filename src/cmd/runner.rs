@@ -44,12 +44,13 @@ pub fn runner(command: &str, config: &CallConfig) -> Result<()> {
 					// this func use std::process::Command is ok
 					// password_rsync(host_ip,port,username,"kali",src,dest);
 					// or you can use this code block replace password_rsync()
+					{
 					let mut rsync = Command::new("sshpass"); // !!! Attention, you must split each option in a arg() alternatively use args(vec![]) !!!
 					let output = rsync
 						.arg("-p")
 						.arg("kali")
 						.arg("rsync")
-						.arg("-aq")
+						.arg("-a")
 						.arg("-zz")
 						.arg("-e")
 						.arg("ssh -p 22")
@@ -65,7 +66,7 @@ pub fn runner(command: &str, config: &CallConfig) -> Result<()> {
 						.stdin(Stdio::inherit())
 						.output()
 						.expect("[!]rsync execute error");
-
+					}
 					println!(
 						"{} {} server({}) run: {} {}",
 						style(format!("[{}]", "running...")).bold().dim(),

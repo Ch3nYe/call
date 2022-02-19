@@ -56,22 +56,32 @@ fn run() -> Result<bool> {
 		.version(crate_version!())
 		.author(crate_authors!())
 		.about(crate_description!())
-		.arg(Arg::with_name("command").help("command to run.").empty_values(false))
+		.arg(Arg::with_name("args").required(false).help("command's args, multipule arg should in \"\"").empty_values(false)) // when you use short() long() ,this argument must use -- or - explictly specify, alternatively specify without - or --
+		// 是否允许显式指定空值
+		// empty_values true[default]: must specify "" or '', command otherwise won't execute.
+		.arg(Arg::from_usage("-c --command [command] 'use this command, default use the command in Call.yml'"))// [explicit name] [short] [long] [value names] [help string] name use <>:required or []:optional
 		.get_matches();
-
-	if let Some(command) = matches.value_of("command") {
-		match command {
-			_ if command == "i" => cmd::init()?, // ? is for anyhow to handle exceptions,
-			_ => {
-				let call_config_root = root_path()?.join("config.toml");
-				let (_template_file, call_file) = config_file(&call_config_root)?;
-				let s = fs::read_to_string(call_file.as_path())?;
-				let yml = YamlLoader::load_from_str(s.as_ref())?;
-				let config = CallConfig::build(yml[0].to_owned())?;
-				cmd::runner(command, &config)?
-			}
+	// whether or not explicitly specify command:
+	let mut runner:String = "".to_string();
+	if let Some(cmd) = matches.value_of("command") {
+		println!("[+]parse explicit command={}",cmd);
+		runner = cmd.parse()?;
+	}
+	// parse config and run
+	let command = matches.value_of("args").unwrap_or("");
+	match command {
+		_ if command == "i" => cmd::init()?, // ? is for anyhow to handle exceptions,
+		_ => {
+			let call_config_root = root_path()?.join("config.toml");
+			let (_template_file, call_file) = config_file(&call_config_root)?;
+			let s = fs::read_to_string(call_file.as_path())?;
+			let yml = YamlLoader::load_from_str(s.as_ref())?;
+			let mut config = CallConfig::build(yml[0].to_owned())?;
+			config.runner = if !runner.is_empty() {runner} else {config.runner};
+			cmd::runner(command, &config)?
 		}
 	}
+
 	Ok(true)
 }
 
